@@ -1,6 +1,5 @@
 package io.github.geco17.melograno.gui;
 
-import io.github.geco17.melograno.gui.controller.MelogranoGUIController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -8,8 +7,15 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 public class App extends Application {
+
+    private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("gui");
+
+    public static ResourceBundle resourceBundle() {
+        return BUNDLE;
+    }
 
     /**
      * Start the melograno gui.
@@ -21,10 +27,12 @@ public class App extends Application {
         stage.setTitle("Melograno");
         FXMLLoader loader = new FXMLLoader(getClass()
                 .getResource("/main.fxml"));
+        loader.setResources(resourceBundle());
         Parent root = loader.load();
         stage.setScene(new Scene(root));
         stage.setResizable(true);
-        stage.setMaximized(true);
+        stage.setMinHeight(320);
+        stage.setMinWidth(200);
         stage.show();
     }
 
