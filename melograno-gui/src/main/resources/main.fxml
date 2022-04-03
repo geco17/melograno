@@ -1,12 +1,10 @@
-<?import java.lang.*?>
-<?import javafx.scene.*?>
+<?import eu.mihosoft.monacofx.MonacoFX?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.input.KeyCodeCombination?>
-
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.VBox?>
 <VBox id="vbox" prefHeight="400" prefWidth="800"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="io.github.geco17.melograno.gui.controller.MenuController">
+      fx:controller="io.github.geco17.melograno.gui.controller.AppController">
     <MenuBar fx:id="menuBar">
         <menus>
             <Menu text="_File">
@@ -56,7 +54,7 @@
                         </accelerator>
                     </MenuItem>
                     <SeparatorMenuItem  />
-                    <MenuItem text="%menu.main.file.exit"/>
+                    <MenuItem text="%menu.main.file.exit" onAction="#exitActionHandler"/>
                 </items>
             </Menu>
             <Menu text="%menu.main.edit">
@@ -107,11 +105,12 @@
                     </MenuItem>
                 </items>
             </Menu>
-            <Menu text="_Help">
+            <Menu text="%menu.main.help">
                 <items>
-                    <MenuItem text="%menu.main.about" onAction="#handleAboutAction"/>
+                    <MenuItem text="%menu.main.help.about" onAction="#aboutActionHandler"/>
                 </items>
             </Menu>
         </menus>
     </MenuBar>
+    <MonacoFX fx:id="textEditor"/>
 </VBox>
