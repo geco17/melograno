@@ -3,9 +3,7 @@ package io.github.geco17.melograno.gui.controller;
 import io.github.geco17.melograno.gui.util.S;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 public class AppController {

@@ -3,4 +3,7 @@
 -fx-border-style: none;
 -fx-background-radius: 0.0px;
 -fx-border-radius: 0.0px;
+-fx-font-family: monospace;
+-fx-font-size: 16px;
+-fx-font-weight: bold;
 }
