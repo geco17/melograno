@@ -16,15 +16,15 @@ public class FileUIService {
         this.appStatusService = appStatusService;
     }
 
-    public boolean doSaveSaveAs(Stage stage) {
+    public boolean doSaveSaveAs(Stage stage, byte[] bytes) {
         if (appStatusService.isNewFile()) {
-            return doSaveAs(stage);
+            return doSaveAs(stage, bytes);
         }
-        appStatusService.save();
+        appStatusService.save(bytes);
         return true;
     }
 
-    public boolean doSaveAs(Stage stage) {
+    public boolean doSaveAs(Stage stage, byte[] bytes) {
         var fileChooser = new FileChooser();
         fileChooser.setTitle(S.val("dialog.prompt.save_as.title"));
         fileChooser.getExtensionFilters().setAll(
@@ -33,7 +33,7 @@ public class FileUIService {
                         "*.*"));
         var file = fileChooser.showSaveDialog(stage);
         if (file != null) {
-            appStatusService.saveAs(file);
+            appStatusService.saveAs(file, bytes);
             return true;
         } else {
             return false;

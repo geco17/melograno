@@ -20,21 +20,21 @@ public class AppControllerService {
         this.fileUIService = fileUIService;
     }
 
-    public boolean saveSaveAsAction(Stage stage) {
+    public boolean saveSaveAsAction(Stage stage, byte[] bytes) {
         if (!fileUIService.isFileModified()) {
             return true;
         }
         var result = new AtomicBoolean(false);
         dialogFactory.savePrompt().showAndWait().ifPresent(buttonType -> {
             String typeCode = buttonType.getButtonData().getTypeCode();
-            result.set(toYesNoCancelSaveSaveAsResult(typeCode, stage));
+            result.set(toYesNoCancelSaveSaveAsResult(typeCode, stage, bytes));
         });
         return result.get();
     }
 
-    boolean toYesNoCancelSaveSaveAsResult(String typeCode, Stage stage) {
+    boolean toYesNoCancelSaveSaveAsResult(String typeCode, Stage stage, byte[] bytes) {
         if (ButtonBar.ButtonData.YES.getTypeCode().equals(typeCode)) {
-            return fileUIService.doSaveSaveAs(stage);
+            return fileUIService.doSaveSaveAs(stage, bytes);
         } else if (ButtonBar.ButtonData.NO.getTypeCode().equals(typeCode)) {
             return true;
         } else if (ButtonBar.ButtonData.CANCEL_CLOSE.getTypeCode().equals(typeCode)) {
@@ -52,14 +52,14 @@ public class AppControllerService {
         dialogFactory.aboutDialog().show();
     }
 
-    public Optional<Path> openAction(Stage stage) {
+    public Optional<Path> openAction(Stage stage, byte[] bytes) {
         var showOpenDialog = new AtomicBoolean(false);
         if (!fileUIService.isFileModified()) {
             showOpenDialog.set(true);
         } else {
             dialogFactory.savePrompt().showAndWait().ifPresent(buttonType -> {
                 String typeCode = buttonType.getButtonData().getTypeCode();
-                showOpenDialog.set(toYesNoCancelSaveSaveAsResult(typeCode, stage));
+                showOpenDialog.set(toYesNoCancelSaveSaveAsResult(typeCode, stage, bytes));
             });
         }
         if (showOpenDialog.get()) {
@@ -73,5 +73,13 @@ public class AppControllerService {
         dialogFactory.errorDialog(
                 "dialog.error.open.file",
                 path.toAbsolutePath().toString()).show();
+    }
+
+    public void noPromptSaveAction(Stage stage, byte[] bytes) {
+        fileUIService.doSaveSaveAs(stage, bytes);
+    }
+
+    public void noPromptSaveAsAction(Stage stage, byte[] bytes) {
+        fileUIService.doSaveAs(stage, bytes);
     }
 }

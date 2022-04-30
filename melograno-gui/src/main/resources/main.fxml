@@ -50,7 +50,7 @@
                             shortcut="%menu.main.file.save.shortcut"/>
                 </accelerator>
             </MenuItem>
-            <MenuItem text="%menu.main.file.save_as" onAction="#saveActionHandler">
+            <MenuItem text="%menu.main.file.save_as" onAction="#saveAsActionHandler">
                 <accelerator>
                     <KeyCodeCombination
                             alt="%menu.main.file.save_as.alt"

@@ -10,9 +10,9 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -41,9 +41,15 @@ public class AppController implements Initializable {
 
     public void exitActionHandler(ActionEvent actionEvent) {
         var stage = stage();
-        if (appControllerService.saveSaveAsAction(stage)) {
+        if (appControllerService.saveSaveAsAction(
+                stage, document())) {
             stage.close();
         }
+    }
+
+    private byte[] document() {
+        return textEditor.getText()
+                .getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -75,13 +81,13 @@ public class AppController implements Initializable {
     }
 
     public void newActionHandler(ActionEvent actionEvent) {
-        if (appControllerService.saveSaveAsAction(stage())) {
+        if (appControllerService.saveSaveAsAction(stage(), document())) {
             textEditor.clear();
         }
     }
 
     public void openActionHandler(ActionEvent actionEvent) {
-        Optional<Path> pathOpt = appControllerService.openAction(stage());
+        Optional<Path> pathOpt = appControllerService.openAction(stage(), document());
         if (pathOpt.isPresent()) {
             try {
                 textEditor.setText(Files.readString(pathOpt.get()));
@@ -92,7 +98,11 @@ public class AppController implements Initializable {
     }
 
     public void saveActionHandler(ActionEvent actionEvent) {
+        appControllerService.noPromptSaveAction(stage(), document());
+    }
 
+    public void saveAsActionHandler(ActionEvent actionEvent) {
+        appControllerService.noPromptSaveAsAction(stage(), document());
     }
 
     private Stage stage() {

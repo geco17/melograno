@@ -68,7 +68,7 @@ public class GuiTest {
                 .clickOn(S.val("menu.main.file.exit"));
         verify(appStatusService).isFileModified();
         robot.clickOn(S.val("dialog.prompt.save.button.save"));
-        verify(appStatusService).save();
+        verify(appStatusService).save(any());
     }
 
 }
