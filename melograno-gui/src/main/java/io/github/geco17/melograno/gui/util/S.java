@@ -16,4 +16,8 @@ public class S {
         return BUNDLE.getString(key);
     }
 
+    public static String val(String key, String...args) {
+        return String.format(val(key), args);
+    }
+
 }

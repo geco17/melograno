@@ -1,23 +1,29 @@
 package io.github.geco17.melograno.gui.controller;
 
-import io.github.geco17.melograno.gui.util.S;
-import io.github.geco17.melograno.service.api.AppStatusService;
+import io.github.geco17.melograno.gui.service.AppControllerService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AppController implements Initializable {
 
-    private final AppStatusService appStatusService;
+    private final AppControllerService appControllerService;
 
-    public AppController(AppStatusService appStatusService) {
-        this.appStatusService = appStatusService;
+    public AppController(AppControllerService appControllerService) {
+        this.appControllerService = appControllerService;
     }
 
     @FXML
@@ -30,43 +36,13 @@ public class AppController implements Initializable {
     private TextArea textEditor;
 
     public void aboutActionHandler(ActionEvent actionEvent) {
-        var alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(S.val("dialog.about.title"));
-        alert.setHeaderText(S.val("dialog.about.header.text"));
-        alert.setContentText(S.val("dialog.about.content.text"));
-        alert.show();
+        appControllerService.aboutAction();
     }
 
     public void exitActionHandler(ActionEvent actionEvent) {
-        var exit = new AtomicBoolean(true);
-        if (appStatusService.isFileModified()) {
-            var alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle(S.val("app.title"));
-            alert.setHeaderText(S.val("dialog.prompt.save.header.text"));
-            alert.setContentText(S.val("dialog.prompt.save.content.text"));
-            alert.getButtonTypes().setAll(
-                    new ButtonType(
-                            S.val("dialog.prompt.save.button.save"),
-                            ButtonBar.ButtonData.YES),
-                    new ButtonType(
-                            S.val("dialog.prompt.save.button.dont_save"),
-                            ButtonBar.ButtonData.NO),
-                    new ButtonType(
-                            S.val("dialog.prompt.save.button.cancel"),
-                            ButtonBar.ButtonData.CANCEL_CLOSE));
-            alert.showAndWait().ifPresent(buttonType -> {
-                String typeCode = buttonType.getButtonData().getTypeCode();
-                if (ButtonBar.ButtonData.YES.getTypeCode().equals(typeCode)) {
-
-                } else if (ButtonBar.ButtonData.NO.getTypeCode().equals(typeCode)) {
-                    exit.set(true);
-                } else if (ButtonBar.ButtonData.CANCEL_CLOSE.getTypeCode().equals(typeCode)) {
-                    exit.set(false);
-                }
-            });
-        }
-        if (exit.get()) {
-            ((Stage) menuBar.getScene().getWindow()).close();
+        var stage = stage();
+        if (appControllerService.saveSaveAsAction(stage)) {
+            stage.close();
         }
     }
 
@@ -75,7 +51,7 @@ public class AppController implements Initializable {
         // bug or feature? the context menu must be initialized first, then the edit menu can be populated
         editorContextMenu.getItems()
                 .forEach(item -> editMenu.getItems().add(item));
-        textEditor.textProperty().addListener((observableValue, s, t1) -> appStatusService.setFileModified(true));
+        textEditor.textProperty().addListener((observableValue, s, t1) -> appControllerService.setFileModified(true));
     }
 
     public void editDeleteActionHandler(ActionEvent actionEvent) {
@@ -99,6 +75,28 @@ public class AppController implements Initializable {
     }
 
     public void newActionHandler(ActionEvent actionEvent) {
-        System.out.println("new clicked");
+        if (appControllerService.saveSaveAsAction(stage())) {
+            textEditor.clear();
+        }
     }
+
+    public void openActionHandler(ActionEvent actionEvent) {
+        Optional<Path> pathOpt = appControllerService.openAction(stage());
+        if (pathOpt.isPresent()) {
+            try {
+                textEditor.setText(Files.readString(pathOpt.get()));
+            } catch (IOException e) {
+                appControllerService.openError(pathOpt.get());
+            }
+        }
+    }
+
+    public void saveActionHandler(ActionEvent actionEvent) {
+
+    }
+
+    private Stage stage() {
+        return (Stage) menuBar.getScene().getWindow();
+    }
+
 }

@@ -16,7 +16,17 @@ public class AppStatusServiceImpl implements AppStatusService {
     }
 
     @Override
-    public boolean save(File file) {
+    public boolean saveAs(File file) {
         return false;
+    }
+
+    @Override
+    public boolean isNewFile() {
+        return false;
+    }
+
+    @Override
+    public void save() {
+
     }
 }

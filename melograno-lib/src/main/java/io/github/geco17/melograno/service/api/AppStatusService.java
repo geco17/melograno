@@ -8,6 +8,9 @@ public interface AppStatusService {
 
     void setFileModified(boolean fileModified);
 
-    boolean save(File file);
+    boolean saveAs(File file);
 
+    boolean isNewFile();
+
+    void save();
 }

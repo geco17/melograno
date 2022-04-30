@@ -2,6 +2,9 @@ package io.github.geco17.melograno.gui;
 
 import io.github.geco17.melograno.gui.controller.AppController;
 import io.github.geco17.melograno.gui.factory.ControllerFactory;
+import io.github.geco17.melograno.gui.factory.DialogFactory;
+import io.github.geco17.melograno.gui.service.AppControllerService;
+import io.github.geco17.melograno.gui.service.FileUIService;
 import io.github.geco17.melograno.gui.util.S;
 import io.github.geco17.melograno.service.impl.AppStatusServiceImpl;
 import javafx.application.Application;
@@ -21,7 +24,12 @@ public class App extends Application {
     }
 
     public App() {
-        this(new ControllerFactory(new AppController(new AppStatusServiceImpl())));
+        controllerFactory = new ControllerFactory(
+                new AppController(
+                        new AppControllerService(
+                                new DialogFactory(),
+                                new FileUIService(
+                                        new AppStatusServiceImpl()))));
     }
 
     /**

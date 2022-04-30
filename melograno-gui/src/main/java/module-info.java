@@ -6,6 +6,7 @@ module melograno.gui {
     exports io.github.geco17.melograno.gui;
     exports io.github.geco17.melograno.gui.controller;
     exports io.github.geco17.melograno.gui.factory;
+    exports io.github.geco17.melograno.gui.service;
     opens io.github.geco17.melograno.gui to javafx.fxml;
     opens io.github.geco17.melograno.gui.controller to javafx.fxml;
 }

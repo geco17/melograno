@@ -28,7 +28,7 @@
                             shortcut="%menu.main.file.new.shortcut"/>
                 </accelerator>
             </MenuItem>
-            <MenuItem text="%menu.main.file.open">
+            <MenuItem text="%menu.main.file.open" onAction="#openActionHandler">
                 <accelerator>
                     <KeyCodeCombination
                             alt="%menu.main.file.open.alt"
@@ -39,7 +39,7 @@
                             shortcut="%menu.main.file.open.shortcut"/>
                 </accelerator>
             </MenuItem>
-            <MenuItem text="%menu.main.file.save">
+            <MenuItem text="%menu.main.file.save" onAction="#saveActionHandler">
                 <accelerator>
                     <KeyCodeCombination
                             alt="%menu.main.file.save.alt"
@@ -50,7 +50,7 @@
                             shortcut="%menu.main.file.save.shortcut"/>
                 </accelerator>
             </MenuItem>
-            <MenuItem text="%menu.main.file.save_as">
+            <MenuItem text="%menu.main.file.save_as" onAction="#saveActionHandler">
                 <accelerator>
                     <KeyCodeCombination
                             alt="%menu.main.file.save_as.alt"
