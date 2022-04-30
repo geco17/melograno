@@ -10,9 +10,9 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AppController implements Initializable {
-
 
     private final AppStatusService appStatusService;
 
@@ -30,7 +30,7 @@ public class AppController implements Initializable {
     private TextArea textEditor;
 
     public void aboutActionHandler(ActionEvent actionEvent) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        var alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(S.val("dialog.about.title"));
         alert.setHeaderText(S.val("dialog.about.header.text"));
         alert.setContentText(S.val("dialog.about.content.text"));
@@ -38,10 +38,36 @@ public class AppController implements Initializable {
     }
 
     public void exitActionHandler(ActionEvent actionEvent) {
+        var exit = new AtomicBoolean(true);
         if (appStatusService.isFileModified()) {
-            System.out.println("todo show save warning");
+            var alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(S.val("app.title"));
+            alert.setHeaderText(S.val("dialog.prompt.save.header.text"));
+            alert.setContentText(S.val("dialog.prompt.save.content.text"));
+            alert.getButtonTypes().setAll(
+                    new ButtonType(
+                            S.val("dialog.prompt.save.button.save"),
+                            ButtonBar.ButtonData.YES),
+                    new ButtonType(
+                            S.val("dialog.prompt.save.button.dont_save"),
+                            ButtonBar.ButtonData.NO),
+                    new ButtonType(
+                            S.val("dialog.prompt.save.button.cancel"),
+                            ButtonBar.ButtonData.CANCEL_CLOSE));
+            alert.showAndWait().ifPresent(buttonType -> {
+                String typeCode = buttonType.getButtonData().getTypeCode();
+                if (ButtonBar.ButtonData.YES.getTypeCode().equals(typeCode)) {
+
+                } else if (ButtonBar.ButtonData.NO.getTypeCode().equals(typeCode)) {
+                    exit.set(true);
+                } else if (ButtonBar.ButtonData.CANCEL_CLOSE.getTypeCode().equals(typeCode)) {
+                    exit.set(false);
+                }
+            });
         }
-        ((Stage) menuBar.getScene().getWindow()).close();
+        if (exit.get()) {
+            ((Stage) menuBar.getScene().getWindow()).close();
+        }
     }
 
     @Override

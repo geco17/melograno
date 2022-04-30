@@ -16,7 +16,7 @@
       fx:controller="io.github.geco17.melograno.gui.controller.AppController">
     <MenuBar fx:id="menuBar"
              xmlns:fx="http://javafx.com/fxml">
-        <Menu text="_File">
+        <Menu text="%menu.main.file">
             <MenuItem text="%menu.main.file.new" onAction="#newActionHandler">
                 <accelerator>
                     <KeyCodeCombination
