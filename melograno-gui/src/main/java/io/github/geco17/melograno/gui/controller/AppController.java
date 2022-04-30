@@ -1,6 +1,7 @@
 package io.github.geco17.melograno.gui.controller;
 
 import io.github.geco17.melograno.gui.util.S;
+import io.github.geco17.melograno.service.api.AppStatusService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,6 +12,13 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class AppController implements Initializable {
+
+
+    private final AppStatusService appStatusService;
+
+    public AppController(AppStatusService appStatusService) {
+        this.appStatusService = appStatusService;
+    }
 
     @FXML
     private Menu editMenu;
@@ -30,6 +38,9 @@ public class AppController implements Initializable {
     }
 
     public void exitActionHandler(ActionEvent actionEvent) {
+        if (appStatusService.isFileModified()) {
+            System.out.println("todo show save warning");
+        }
         ((Stage) menuBar.getScene().getWindow()).close();
     }
 
@@ -38,6 +49,7 @@ public class AppController implements Initializable {
         // bug or feature? the context menu must be initialized first, then the edit menu can be populated
         editorContextMenu.getItems()
                 .forEach(item -> editMenu.getItems().add(item));
+        textEditor.textProperty().addListener((observableValue, s, t1) -> appStatusService.setFileModified(true));
     }
 
     public void editDeleteActionHandler(ActionEvent actionEvent) {
@@ -58,5 +70,9 @@ public class AppController implements Initializable {
 
     public void editSelectAllActionHandler(ActionEvent actionEvent) {
         textEditor.selectAll();
+    }
+
+    public void newActionHandler(ActionEvent actionEvent) {
+        System.out.println("new clicked");
     }
 }

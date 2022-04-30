@@ -17,7 +17,7 @@
     <MenuBar fx:id="menuBar"
              xmlns:fx="http://javafx.com/fxml">
         <Menu text="_File">
-            <MenuItem text="%menu.main.file.new">
+            <MenuItem text="%menu.main.file.new" onAction="#newActionHandler">
                 <accelerator>
                     <KeyCodeCombination
                             alt="%menu.main.file.new.alt"
