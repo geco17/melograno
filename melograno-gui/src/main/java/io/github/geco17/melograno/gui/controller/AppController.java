@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class AppController implements Initializable {
@@ -41,9 +39,18 @@ public class AppController implements Initializable {
 
     public void exitActionHandler(ActionEvent actionEvent) {
         var stage = stage();
-        if (appControllerService.saveSaveAsAction(
-                stage, document())) {
-            stage.close();
+        var result = appControllerService.saveSaveAsAction(stage, document());
+        switch (result) {
+            case SAVE_YES:
+            case SAVE_NO:
+            case SAVE_NOT_NECESSARY:
+                stage.close();
+                break;
+            case SAVE_CANCEL:
+                // do nothing - they cancelled
+                break;
+            default:
+                throw new IllegalStateException("Unknown save result: " + result);
         }
     }
 
@@ -81,20 +88,34 @@ public class AppController implements Initializable {
     }
 
     public void newActionHandler(ActionEvent actionEvent) {
-        if (appControllerService.saveSaveAsAction(stage(), document())) {
-            textEditor.clear();
+        var result = appControllerService.saveSaveAsAction(stage(), document());
+        switch (result) {
+            case SAVE_YES:
+            case SAVE_NO:
+            case SAVE_NOT_NECESSARY:
+                textEditor.clear();
+                appControllerService.setFileModified(false);
+                break;
+            case SAVE_CANCEL:
+                // do nothing - they cancelled
+                break;
+            default:
+                throw new IllegalStateException("Unknown save result: " + result);
         }
     }
 
     public void openActionHandler(ActionEvent actionEvent) {
-        Optional<Path> pathOpt = appControllerService.openAction(stage(), document());
-        if (pathOpt.isPresent()) {
-            try {
-                textEditor.setText(Files.readString(pathOpt.get()));
-            } catch (IOException e) {
-                appControllerService.openError(pathOpt.get());
-            }
-        }
+        appControllerService.openAction(
+                stage(),
+                document(),
+                path -> {
+                    try {
+                        textEditor.setText(Files.readString(path));
+                        return true;
+                    } catch (IOException e) {
+                        return false;
+                    }
+                });
     }
 
     public void saveActionHandler(ActionEvent actionEvent) {

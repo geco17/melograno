@@ -3,7 +3,6 @@ package io.github.geco17.melograno.service.impl;
 import io.github.geco17.melograno.service.api.AppStatusService;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Optional;
@@ -24,6 +23,12 @@ public class AppStatusServiceImpl implements AppStatusService {
     @Override
     public void setFileModified(boolean fileModified) {
         modified.set(fileModified);
+    }
+
+    @Override
+    public void setCurrentFile(File file) {
+        currentFile.set(Optional.of(file));
+        setFileModified(false);
     }
 
     @Override

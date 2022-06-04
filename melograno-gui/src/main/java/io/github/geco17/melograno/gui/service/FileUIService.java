@@ -62,4 +62,8 @@ public class FileUIService {
             return Optional.empty();
         }
     }
+
+    public void setCurrentFile(File file) {
+        appStatusService.setCurrentFile(file);
+    }
 }

@@ -8,6 +8,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 public class AppControllerService {
 
@@ -20,28 +21,23 @@ public class AppControllerService {
         this.fileUIService = fileUIService;
     }
 
-    public boolean saveSaveAsAction(Stage stage, byte[] bytes) {
-        if (!fileUIService.isFileModified()) {
-            return true;
-        }
-        var result = new AtomicBoolean(false);
-        dialogFactory.savePrompt().showAndWait().ifPresent(buttonType -> {
-            String typeCode = buttonType.getButtonData().getTypeCode();
-            result.set(toYesNoCancelSaveSaveAsResult(typeCode, stage, bytes));
-        });
-        return result.get();
+    public enum SaveSaveAsResult {
+        SAVE_NOT_NECESSARY,
+        SAVE_YES,
+        SAVE_NO,
+        SAVE_CANCEL
     }
 
-    boolean toYesNoCancelSaveSaveAsResult(String typeCode, Stage stage, byte[] bytes) {
-        if (ButtonBar.ButtonData.YES.getTypeCode().equals(typeCode)) {
-            return fileUIService.doSaveSaveAs(stage, bytes);
-        } else if (ButtonBar.ButtonData.NO.getTypeCode().equals(typeCode)) {
-            return true;
-        } else if (ButtonBar.ButtonData.CANCEL_CLOSE.getTypeCode().equals(typeCode)) {
-            return false;
-        } else {
-            throw new IllegalStateException("Unknown button type code: " + typeCode);
+    public SaveSaveAsResult saveSaveAsAction(Stage stage, byte[] bytes) {
+        if (!fileUIService.isFileModified()) {
+            return SaveSaveAsResult.SAVE_NOT_NECESSARY;
         }
+        var promptResult = dialogFactory.savePrompt().showAndWait();
+        if (promptResult.isPresent()) {
+            String typeCode = promptResult.get().getButtonData().getTypeCode();
+            return toYesNoCancelSaveSaveAsResult(typeCode, stage, bytes);
+        }
+        throw new IllegalStateException("No save result");
     }
 
     public void setFileModified(boolean fileModified) {
@@ -52,14 +48,42 @@ public class AppControllerService {
         dialogFactory.aboutDialog().show();
     }
 
-    public Optional<Path> openAction(Stage stage, byte[] bytes) {
+    public void openAction(Stage stage, byte[] bytes, Function<Path, Boolean> callback) {
+        Optional<Path> pathOpt = openPath(stage, bytes);
+        if (pathOpt.isPresent()) {
+            if (callback.apply(pathOpt.get())) {
+                setCurrentFile(pathOpt.get().toFile());
+            } else {
+                openError(pathOpt.get());
+            }
+        }
+    }
+
+    private void setCurrentFile(File file) {
+        fileUIService.setCurrentFile(file);
+    }
+
+    private Optional<Path> openPath(Stage stage, byte[] bytes) {
         var showOpenDialog = new AtomicBoolean(false);
         if (!fileUIService.isFileModified()) {
             showOpenDialog.set(true);
         } else {
             dialogFactory.savePrompt().showAndWait().ifPresent(buttonType -> {
                 String typeCode = buttonType.getButtonData().getTypeCode();
-                showOpenDialog.set(toYesNoCancelSaveSaveAsResult(typeCode, stage, bytes));
+                var result = toYesNoCancelSaveSaveAsResult(typeCode, stage, bytes);
+                switch (result) {
+                    case SAVE_YES:
+                    case SAVE_NO:
+                    case SAVE_NOT_NECESSARY:
+                        showOpenDialog.set(true);
+                        break;
+                    case SAVE_CANCEL:
+                        showOpenDialog.set(false);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown save / save as result: " + result);
+                }
+
             });
         }
         if (showOpenDialog.get()) {
@@ -68,6 +92,23 @@ public class AppControllerService {
         }
         return Optional.empty();
     }
+
+    private SaveSaveAsResult toYesNoCancelSaveSaveAsResult(String typeCode, Stage stage, byte[] bytes) {
+        if (ButtonBar.ButtonData.YES.getTypeCode().equals(typeCode)) {
+            if (fileUIService.doSaveSaveAs(stage, bytes)) {
+                return SaveSaveAsResult.SAVE_YES;
+            } else {
+                return SaveSaveAsResult.SAVE_CANCEL;
+            }
+        } else if (ButtonBar.ButtonData.NO.getTypeCode().equals(typeCode)) {
+            return SaveSaveAsResult.SAVE_NO;
+        } else if (ButtonBar.ButtonData.CANCEL_CLOSE.getTypeCode().equals(typeCode)) {
+            return SaveSaveAsResult.SAVE_CANCEL;
+        } else {
+            throw new IllegalStateException("Unknown button type code: " + typeCode);
+        }
+    }
+
 
     public void openError(Path path) {
         dialogFactory.errorDialog(
